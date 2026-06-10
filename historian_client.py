@@ -41,10 +41,14 @@ class HistorianClient:
             chunk['timestamp'] = (
                 chunk['timestamp'].astype(str)
                 .str.strip()
-                .str.replace(r'\s+[A-Za-z]{2,5}$', '', regex=True)
+                # strip trailing timezone label: " EST", " UTC", " AEST", etc.
+                .str.replace(r'\s+[A-Za-z]{2,6}$', '', regex=True)
+                # strip remaining UTC offset: "+05:30", "-04:00", "Z"
+                .str.replace(r'[Z ][+-]?\d{2}:?\d{2}$', '', regex=True)
+                .str.strip()
             )
 
-        chunk['timestamp'] = pd.to_datetime(chunk['timestamp'], errors='coerce', format='mixed', dayfirst=False)
+        chunk['timestamp'] = pd.to_datetime(chunk['timestamp'], errors='coerce')
 
         n_invalid = int(chunk['timestamp'].isna().sum())
         if n_invalid:
