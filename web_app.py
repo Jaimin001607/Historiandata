@@ -28,6 +28,8 @@ except (FileNotFoundError, ValueError) as _e:
 
 if _files:
     consolidated_df = pipeline.load_and_consolidate(_files)
+    print(f"\n  Total records: {len(consolidated_df)}")
+    print(f"  Date range:    {consolidated_df['timestamp'].min().date()} → {consolidated_df['timestamp'].max().date()}\n")
 else:
     import pandas as pd
     consolidated_df = pd.DataFrame(columns=["timestamp", "component_id"])

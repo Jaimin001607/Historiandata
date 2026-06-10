@@ -10,15 +10,8 @@ def main() -> None:
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     )
 
-    historian_files = [
-        r"c:\Users\jaiminsuthar\Downloads\CSA Reliability data Feb2025 to now.csv",
-        r"c:\Users\jaiminsuthar\Downloads\CSA Reliability data Jan2026(6 months).csv",
-        r"c:\Users\jaiminsuthar\Downloads\CSA Reliability data Jan 2026(2nd location).csv",
-        r"c:\Users\jaiminsuthar\Downloads\CSA Reliability data Jan 2026 to now(all america).csv",
-        r"c:\Users\jaiminsuthar\Downloads\CSA Reliability data Jan 2025 to now(all america).csv",
-    ]
-
-    pipeline = RMSTrainingPipeline(output_dir='trained_models')
+    pipeline = RMSTrainingPipeline(output_dir='trained_models', data_folder='historian_data')
+    historian_files = pipeline.scan_data_folder()
     consolidated_data = pipeline.load_and_consolidate(historian_files)
 
     print(f"Loaded {len(consolidated_data)} records across {consolidated_data['component_id'].nunique()} components")
