@@ -40,10 +40,11 @@ class HistorianClient:
         if chunk['timestamp'].dtype == 'object':
             chunk['timestamp'] = (
                 chunk['timestamp'].astype(str)
-                .str.replace(r'\s[A-Z]{2,4}$', '', regex=True)
+                .str.strip()
+                .str.replace(r'\s+[A-Za-z]{2,5}$', '', regex=True)
             )
 
-        chunk['timestamp'] = pd.to_datetime(chunk['timestamp'], errors='coerce')
+        chunk['timestamp'] = pd.to_datetime(chunk['timestamp'], errors='coerce', format='mixed', dayfirst=False)
 
         n_invalid = int(chunk['timestamp'].isna().sum())
         if n_invalid:
