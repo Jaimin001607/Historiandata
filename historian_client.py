@@ -37,16 +37,14 @@ class HistorianClient:
         if 'timestamp' not in chunk.columns or 'component_id' not in chunk.columns:
             return pd.DataFrame()
 
-        if chunk['timestamp'].dtype == 'object':
-            chunk['timestamp'] = (
-                chunk['timestamp'].astype(str)
-                .str.strip()
-                # strip trailing timezone label: " EST", " UTC", " AEST", etc.
-                .str.replace(r'\s+[A-Za-z]{2,6}$', '', regex=True)
-                # strip remaining UTC offset: "+05:30", "-04:00", "Z"
-                .str.replace(r'[Z ][+-]?\d{2}:?\d{2}$', '', regex=True)
-                .str.strip()
-            )
+        # Always strip: pandas 3.0 uses StringDtype (not object) so dtype checks fail
+        chunk['timestamp'] = (
+            chunk['timestamp'].astype(str)
+            .str.strip()
+            .str.replace(r'\s+[A-Za-z]{2,6}$', '', regex=True)
+            .str.replace(r'[Z ][+-]?\d{2}:?\d{2}$', '', regex=True)
+            .str.strip()
+        )
 
         chunk['timestamp'] = pd.to_datetime(chunk['timestamp'], errors='coerce')
 
