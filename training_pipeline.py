@@ -15,13 +15,25 @@ import matplotlib.dates as mdates
 class RMSTrainingPipeline:
     """Training pipeline for historian datasets and per-sensor model generation."""
 
-    def __init__(self, output_dir: str = "trained_models"):
+    def __init__(self, output_dir: str = "trained_models", data_folder: Optional[str] = None):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
+        self.data_folder = Path(data_folder) if data_folder else None
         self.logger = logging.getLogger(__name__)
         self.client = HistorianClient(self.logger)
         self.models: Dict[str, SensorPrognosticModel] = {}
         self.training_stats: Dict = {}
+
+    def scan_data_folder(self, folder: Optional[str] = None) -> List[str]:
+        """Return all CSV files found in the data folder (or the given folder)."""
+        target = Path(folder) if folder else self.data_folder
+        if target is None:
+            raise ValueError("No data folder specified. Pass a folder path or set data_folder in __init__.")
+        if not target.is_dir():
+            raise FileNotFoundError(f"Data folder not found: {target}")
+        csv_files = sorted(target.glob("*.csv"))
+        self.logger.info(f"Found {len(csv_files)} CSV file(s) in {target}")
+        return [str(p) for p in csv_files]
 
     def load_and_consolidate(self, csv_files: List[str]) -> 'pd.DataFrame':
         consolidated = self.client.merge_historical_files(csv_files)

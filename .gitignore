@@ -1,0 +1,20 @@
+# Ignore everything by default
+*
+
+# Allow the project Python files
+!training_pipeline.py
+!web_app.py
+!rms_main.py
+!historian_client.py
+!sensor_prognostic_model.py
+!alerting_system.py
+!requirements.txt
+!.gitignore
+
+# Never commit generated/data directories
+__pycache__/
+trained_models/
+sensor_training_data/
+historian_data/
+*.pyc
+*.log
