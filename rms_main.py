@@ -13,6 +13,7 @@ def main() -> None:
     pipeline = RMSTrainingPipeline(output_dir='trained_models', data_folder='historian_data')
     historian_files = pipeline.scan_data_folder()
     consolidated_data = pipeline.load_and_consolidate(historian_files)
+    pipeline.save_consolidated_cache(consolidated_data)
 
     print(f"Loaded {len(consolidated_data)} records across {consolidated_data['component_id'].nunique()} components")
 

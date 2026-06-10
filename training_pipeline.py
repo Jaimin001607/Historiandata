@@ -78,9 +78,41 @@ class RMSTrainingPipeline:
 
         return saved_files
 
+    _CONSOLIDATED_CACHE = 'consolidated_data.pkl'
+
+    def save_consolidated_cache(self, df: 'pd.DataFrame', cache_dir: Optional[str] = None) -> str:
+        """Pickle the consolidated DataFrame so future runs skip CSV re-parsing."""
+        import pickle
+        path = Path(cache_dir or self.output_dir) / self._CONSOLIDATED_CACHE
+        with open(path, 'wb') as f:
+            pickle.dump(df, f)
+        self.logger.info(f"Saved consolidated cache ({len(df)} records) → {path}")
+        return str(path)
+
+    def load_consolidated_cache(self, cache_dir: Optional[str] = None, csv_files: Optional[List[str]] = None) -> 'pd.DataFrame':
+        """Load cached consolidated DataFrame. Raises if missing or any CSV is newer than the cache."""
+        import pickle
+        path = Path(cache_dir or self.output_dir) / self._CONSOLIDATED_CACHE
+        if not path.exists():
+            raise FileNotFoundError("No consolidated cache found")
+        if csv_files:
+            cache_mtime = path.stat().st_mtime
+            for f in csv_files:
+                p = Path(f)
+                if p.exists() and p.stat().st_mtime > cache_mtime:
+                    raise ValueError(f"Cache stale: {p.name} is newer than the cache")
+        with open(path, 'rb') as f:
+            df = pickle.load(f)
+        self.logger.info(f"Loaded consolidated cache ({len(df)} records)")
+        return df
+
     def train_models_by_file(self, csv_files: List[str], min_samples: int = 30, history_days: Optional[int] = None) -> Dict[str, SensorPrognosticModel]:
         for file_path in csv_files:
-            data = self.client.load_data(file_path)
+            try:
+                data = self.client.load_data(file_path)
+            except Exception as exc:
+                self.logger.warning(f"Skipping {Path(file_path).name}: {exc}")
+                continue
             data = self._apply_history_window(data, history_days)
             file_tag = Path(file_path).stem.replace(' ', '_')
             for component_id in data['component_id'].unique():

@@ -27,9 +27,14 @@ except (FileNotFoundError, ValueError) as _e:
     _files = []
 
 if _files:
-    consolidated_df = pipeline.load_and_consolidate(_files)
-    print(f"\n  Total records: {len(consolidated_df)}")
-    print(f"  Date range:    {consolidated_df['timestamp'].min().date()} → {consolidated_df['timestamp'].max().date()}\n")
+    try:
+        consolidated_df = pipeline.load_consolidated_cache(csv_files=_files)
+        print(f"\n  Loaded from cache: {len(consolidated_df)} records")
+    except Exception as _cache_miss:
+        app.logger.info("Cache miss (%s) — parsing CSV files…", _cache_miss)
+        consolidated_df = pipeline.load_and_consolidate(_files)
+        pipeline.save_consolidated_cache(consolidated_df)
+    print(f"  Date range: {consolidated_df['timestamp'].min().date()} → {consolidated_df['timestamp'].max().date()}\n")
 else:
     import pandas as pd
     consolidated_df = pd.DataFrame(columns=["timestamp", "component_id"])
