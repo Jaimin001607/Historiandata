@@ -1,0 +1,12 @@
+GitHub Repository
+=================
+URL:    https://github.com/Jaimin001607/Historiandata.git
+Branch: main
+
+Clone:
+  git clone https://github.com/Jaimin001607/Historiandata.git
+
+Push changes:
+  git add <files>
+  git commit -m "your message"
+  git push origin main

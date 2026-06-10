@@ -1,0 +1,6 @@
+__pycache__/
+trained_models/
+sensor_training_data/
+historian_data/
+*.pyc
+*.log

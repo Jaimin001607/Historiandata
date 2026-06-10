@@ -1,20 +1,19 @@
-# Ignore everything by default
+# Ignore everything at the home directory root
 *
 
-# Allow the project Python files
-!training_pipeline.py
-!web_app.py
-!rms_main.py
-!historian_client.py
-!sensor_prognostic_model.py
-!alerting_system.py
-!requirements.txt
+# Allow git config and this file
 !.gitignore
 
-# Never commit generated/data directories
-__pycache__/
-trained_models/
-sensor_training_data/
-historian_data/
-*.pyc
-*.log
+# Allow the project folder itself
+!/Historian sensor alert system/
+
+# Allow project source files inside the folder
+!"/Historian sensor alert system/*.py"
+!"/Historian sensor alert system/*.txt"
+!"/Historian sensor alert system/.gitignore"
+
+# Keep data/output folders excluded even inside the project folder
+"/Historian sensor alert system/trained_models/"
+"/Historian sensor alert system/sensor_training_data/"
+"/Historian sensor alert system/historian_data/"
+"/Historian sensor alert system/__pycache__/"
